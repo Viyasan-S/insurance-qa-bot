@@ -1,0 +1,19 @@
+
+services:
+  insurance-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: insurance-qa-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      OLLAMA_HOST: http://host.docker.internal:11434
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
