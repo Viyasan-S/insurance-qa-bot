@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Life Assistant</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --background: #f4f7fb;
+      --border: #e2e8f0;
+      --text: #172033;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      background: #dbeafe;
+      color: var(--primary);
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      font-size: 23px;
+    }
+
+    header h1 { font-size: 17px; margin: 0 0 4px; }
+    header p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .status {
+      margin-left: auto;
+      font-size: 12px;
+      color: #15803d;
+      background: #dcfce7;
+      padding: 7px 10px;
+      border-radius: 20px;
+    }
+
+    main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 12px 0 24px;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-width: 85%;
+    }
+
+    .message.user { align-self: flex-end; }
+    .message.assistant { align-self: flex-start; }
+
+    .label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+    }
+
+    .bubble {
+      padding: 14px 16px;
+      border-radius: 16px;
+      line-height: 1.65;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .user .bubble {
+      background: var(--primary);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .assistant .bubble {
+      background: white;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .sources {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: #1d4ed8;
+      font-size: 12px;
+    }
+
+    .source-item { margin-top: 5px; }
+
+    .notice {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .suggestion {
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      background: white;
+      border-radius: 20px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .suggestion:hover { background: #eff6ff; }
+
+    .composer {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      box-shadow: 0 4px 20px #0f172a08;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      padding: 10px;
+      background: transparent;
+      color: var(--text);
+    }
+
+    button:disabled { opacity: .55; cursor: not-allowed; }
+
+    #send {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 11px;
+      padding: 12px 17px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    #send:hover { background: #1d4ed8; }
+
+    .settings {
+      margin-bottom: 12px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .settings summary {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .key-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .key-row input {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .key-row button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: white;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 12px;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 12px 16px; }
+      main { padding: 12px; }
+      .message { max-width: 95%; }
+      .status { font-size: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">✚</div>
+    <div>
+      <h1>Global Life Assistant</h1>
+      <p>Secure Insurance Policy Q&A</p>
+    </div>
+    <span class="status">● Local AI</span>
+  </header>
+
+  <main>
+    <div id="chat" aria-live="polite">
+      <div class="message assistant">
+        <div class="label">AI Assistant</div>
+        <div class="bubble">Hello! 👋 I'm your insurance policy assistant.
+
+Ask me about policy benefits, exclusions, waiting periods, or claims. I'll retrieve relevant information from the mock policy and show you its sources.</div>
+      </div>
+    </div>
+
+    <div class="suggestions">
+      <button class="suggestion" data-question="What is the accidental death benefit?">Accidental death benefit</button>
+      <button class="suggestion" data-question="What documents are required to submit a claim?">Claim requirements</button>
+      <button class="suggestion" data-question="What is the waiting period?">Waiting period</button>
+    </div>
+
+    <details class="settings">
+      <summary>API connection and authentication settings</summary>
+      <div class="key-row">
+        <input id="apiKey" type="password"
+          placeholder="Enter your API key"
+          autocomplete="off"
+          aria-label="API key">
+        <button id="saveKey" type="button">Use key</button>
+      </div>
+      <div class="notice">The key stays in this page's memory and is not saved to browser storage.</div>
+    </details>
+
+    <form id="form" class="composer">
+      <input id="question" maxlength="500" minlength="3"
+        placeholder="Ask a question about your policy..."
+        autocomplete="off" required>
+      <button id="send" type="submit">Send ↑</button>
+    </form>
+
+    <footer>
+      Educational demo using fictional insurance terms. Answers are not real insurance or financial advice.
+    </footer>
+  </main>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const input = document.getElementById("question");
+    const apiKeyInput = document.getElementById("apiKey");
+    const sendButton = document.getElementById("send");
+
+    let apiKey = "";
+    let busy = false;
+
+    document.getElementById("saveKey").addEventListener("click", () => {
+      apiKey = apiKeyInput.value.trim();
+      addMessage(
+        "assistant",
+        apiKey
+          ? "API key set for this page. You can ask your policy question now."
+          : "Enter your API key before asking a question."
+      );
+    });
+
+    function addMessage(role, text, sources = [], notice = "") {
+      const wrapper = document.createElement("div");
+      wrapper.className = `message ${role}`;
+
+      const label = document.createElement("div");
+      label.className = "label";
+      label.textContent = role === "user" ? "You" : "AI Assistant";
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+
+      wrapper.append(label, bubble);
+
+      if (sources.length) {
+        const sourceBox = document.createElement("div");
+        sourceBox.className = "sources";
+        sourceBox.textContent = "📄 Sources";
+
+        sources.forEach(source => {
+          const item = document.createElement("div");
+          item.className = "source-item";
+          item.textContent =
+            `${source.source} · Page ${source.page}`;
+          sourceBox.appendChild(item);
+        });
+
+        bubble.appendChild(sourceBox);
+      }
+
+      if (notice) {
+        const note = document.createElement("div");
+        note.className = "notice";
+        note.textContent = notice;
+        bubble.appendChild(note);
+      }
+
+      chat.appendChild(wrapper);
+      chat.scrollTop = chat.scrollHeight;
+      return wrapper;
+    }
+
+    async function askQuestion(question) {
+      if (busy) return;
+
+      if (!apiKey) {
+        addMessage(
+          "assistant",
+          "Please open API connection and authentication settings and enter your API key first."
+        );
+        return;
+      }
+
+      busy = true;
+      sendButton.disabled = true;
+      input.disabled = true;
+
+      addMessage("user", question);
+      const pending = addMessage("assistant", "Searching the policy and generating an answer...");
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": apiKey
+          },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.detail || `Request failed (${response.status})`
+          );
+        }
+
+        pending.remove();
+        addMessage(
+          "assistant",
+          data.answer,
+          data.sources || [],
+          data.notice || ""
+        );
+      } catch (error) {
+        pending.remove();
+        addMessage(
+          "assistant",
+          `I couldn't complete your request: ${error.message}\n\nCheck that the API is running, your API key is valid, and Ollama is available.`
+        );
+      } finally {
+        busy = false;
+        sendButton.disabled = false;
+        input.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const question = input.value.trim();
+
+      if (question.length < 3) {
+        addMessage("assistant", "Please enter a question containing at least 3 characters.");
+        return;
+      }
+
+      input.value = "";
+      askQuestion(question);
+    });
+
+    document.querySelectorAll(".suggestion").forEach(button => {
+      button.addEventListener("click", () => {
+        askQuestion(button.dataset.question);
+      });
+    });
+  </script>
+</body>
+</html>
